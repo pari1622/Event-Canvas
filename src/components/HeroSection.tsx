@@ -25,7 +25,7 @@ export default function HeroSection() {
       <div className="relative z-10 w-full max-w-2xl px-6 md:px-10 pb-10 pt-32">
         <h1 className="text-[clamp(3rem,8vw,6rem)] font-bold leading-[1.05] tracking-[-0.05em] uppercase">
           EVENT
-          <span className="text-blue-500">CANVAS</span>
+          <span className="text-blue-500"> CANVAS</span>
         </h1>
 
         <p className="mt-4 text-[clamp(1.125rem,2.5vw,1.875rem)] text-white/80">

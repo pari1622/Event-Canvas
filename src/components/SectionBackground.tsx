@@ -7,7 +7,8 @@ export default function SectionBackground() {
         <div
           className="
             h-full w-full
-            bg-[linear-gradient(rgba(59,130,246,.15)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,.15)_1px,transparent_1px)]
+            bg-[linear-gradient(rgba(59,130,246,.15)_1px,transparent_1px),
+            linear-gradient(90deg,rgba(59,130,246,.15)_1px,transparent_1px)]
             bg-[size:60px_60px]
           "
         />
