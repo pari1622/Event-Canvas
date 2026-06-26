@@ -44,6 +44,9 @@ export default function ProductsSection() {
               image={category.image}
               description={category.description}
               slug={category.slug}
+              products={category.products}
+              expanded={false}
+              onToggle={() => {}}
             />
           ))}
         </div>

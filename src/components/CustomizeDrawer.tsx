@@ -50,20 +50,6 @@ export default function CustomizeDrawer({
     }));
   };
 
-  const increaseQuantity = () => {
-    setFormData((prev: any) => ({
-      ...prev,
-      quantity: prev.quantity + 1,
-    }));
-  };
-
-  const decreaseQuantity = () => {
-    setFormData((prev: any) => ({
-      ...prev,
-      quantity: Math.max(1, prev.quantity - 1),
-    }));
-  };
-
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 

@@ -2,12 +2,21 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 
 export type Customization = {
   quantity?: number;
-  size?: string;
+
   material?: string;
+
   paper?: string;
-  printing?: string;
+
+  size?: string;
+
   lamination?: string;
+
+  printing?: string;
+
+  color?: string;
+
   notes?: string;
+
   file?: string;
 };
 
