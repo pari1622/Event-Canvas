@@ -1,11 +1,20 @@
-export const categories = [
+export type Category = {
+  id: number;
+  slug: string;
+  title: string;
+  image: string;
+  description: string;
+  products: string[];
+};
+
+export const categories: Category[] = [
   {
     id: 1,
     slug: "printing",
     title: "Printing",
     image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
     description:
-      "Brochures, flyers, posters, stickers and business stationery.",
+      "Brochures, flyers, posters, stickers, business stationery and premium print solutions for every occasion.",
 
     products: [
       "Magazine / Brochure",
@@ -28,7 +37,7 @@ export const categories = [
     title: "Apparel & Merchandise",
     image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
     description:
-      "Custom t-shirts, hoodies, mugs, caps and promotional merchandise.",
+      "Custom apparel and promotional merchandise for colleges, corporates, brands and events.",
 
     products: [
       "Round Neck T-Shirt",
@@ -52,7 +61,8 @@ export const categories = [
     slug: "branding-signages",
     title: "Branding & Signages",
     image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
-    description: "Signages, banners, standees and branding solutions.",
+    description:
+      "Indoor and outdoor branding solutions including standees, signages, banners and displays.",
 
     products: [
       "Signage",
@@ -72,7 +82,8 @@ export const categories = [
     slug: "corporate-gifting",
     title: "Corporate Gifting",
     image: "https://images.unsplash.com/photo-1512909006721-3d6018887383",
-    description: "Corporate gifts, trophies and premium gifting solutions.",
+    description:
+      "Premium gifting solutions for conferences, employee recognition, branding and corporate events.",
 
     products: [
       "Corporate Gift Set",
@@ -88,7 +99,8 @@ export const categories = [
     slug: "event-solutions",
     title: "Event Solutions",
     image: "https://images.unsplash.com/photo-1511578314322-379afb476865",
-    description: "Complete event planning and execution solutions.",
+    description:
+      "Complete planning, branding and execution solutions for corporate, educational and public events.",
 
     products: [
       "Event Management",

@@ -1,65 +1,221 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useCart } from "../context/CartContext";
+import CustomizeDrawer from "./CustomizeDrawer";
 
 type CategoryCardProps = {
   title: string;
   image: string;
   description: string;
   slug: string;
+  products: string[];
+
+  expanded: boolean;
+  onToggle: () => void;
 };
 
 export default function CategoryCard({
   title,
   image,
   description,
-  slug,
+  products,
+  expanded,
+  onToggle,
 }: CategoryCardProps) {
+  const { items, addToCart } = useCart();
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState("");
+
+  const handleAdd = (service: string) => {
+    addToCart({
+      id: Date.now() + Math.random(),
+      name: service,
+      category: title,
+      image,
+    });
+  };
+
   return (
-    <div className="group bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden hover:border-blue-500/50 transition-all duration-300">
-      <div className="h-60 overflow-hidden">
-        <img
-          src={image}
-          alt={title}
-          className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
-        />
-      </div>
+    <>
+      <div
+        className="
+          group
+          rounded-3xl
+          overflow-hidden
+          bg-white/[0.04]
+          backdrop-blur-xl
+          transition-all
+          duration-300
+          hover:bg-white/[0.06]
+        "
+        style={{
+          border: "1px solid #42362F",
+        }}
+      >
+        {/* IMAGE */}
 
-      <div className="p-6">
-        <h3 className="text-2xl font-semibold">{title}</h3>
-
-        <p className="text-white/60 mt-4 leading-relaxed">{description}</p>
-
-        <div className="flex gap-3 mt-6">
-          <button
+        <div className="overflow-hidden h-60">
+          <img
+            src={image}
+            alt={title}
             className="
-              flex-1
-              bg-blue-500
-              hover:bg-blue-600
+              w-full
+              h-full
+              object-cover
+              group-hover:scale-105
               transition
-              py-3
-              rounded-xl
-              font-medium
+              duration-700
             "
+          />
+        </div>
+
+        {/* CONTENT */}
+
+        <div className="p-6">
+          <h2
+            className="text-2xl font-bold"
+            style={{
+              color: "#B89D82",
+            }}
           >
-            Add To Bag
+            {title}
+          </h2>
+
+          <p className="mt-4 text-white/60 leading-relaxed">{description}</p>
+
+          {/* SERVICES BUTTON */}
+
+          <button
+            onClick={onToggle}
+            className="
+              mt-8
+              w-full
+              flex
+              items-center
+              justify-between
+              rounded-xl
+              px-5
+              py-3
+              font-semibold
+              text-white
+              transition
+            "
+            style={{
+              backgroundColor: "#42362F",
+            }}
+          >
+            <span>Services Offered</span>
+
+            <span className="text-xl">{expanded ? "−" : "+"}</span>
           </button>
 
-          <Link
-            to={`/products/${slug}`}
-            className="
-              flex-1
-              border border-white/20
-              hover:border-blue-500
-              transition
-              py-3
-              rounded-xl
-              text-center
-              font-medium
-            "
+          {/* SERVICES */}
+
+          <div
+            className={`
+              overflow-hidden
+              transition-all
+              duration-500
+              ${expanded ? "max-h-[900px] mt-5" : "max-h-0"}
+            `}
           >
-            Know More
-          </Link>
+            <div className="space-y-4">
+              {products.map((service) => {
+                const cartItem = items.find(
+                  (item) => item.name === service && item.category === title,
+                );
+
+                return (
+                  <div
+                    key={service}
+                    className="
+                      rounded-xl
+                      bg-white/[0.03]
+                      p-4
+                      transition-all
+                      duration-300
+                      hover:bg-white/[0.07]
+                    "
+                    style={{
+                      border: "1px solid #42362F",
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-white">{service}</h4>
+
+                      {!cartItem ? (
+                        <button
+                          onClick={() => handleAdd(service)}
+                          className="
+                            rounded-lg
+                            px-4
+                            py-2
+                            text-sm
+                            font-medium
+                            text-white
+                            transition
+                          "
+                          style={{
+                            backgroundColor: "#42362F",
+                          }}
+                        >
+                          Add To Bag
+                        </button>
+                      ) : (
+                        <span
+                          className="text-sm font-medium"
+                          style={{
+                            color: "#B89D82",
+                          }}
+                        >
+                          ✓ Added
+                        </span>
+                      )}
+                    </div>
+
+                    {/* CUSTOMIZE BUTTON */}
+
+                    {cartItem && (
+                      <button
+                        onClick={() => {
+                          setSelectedService(service);
+                          setDrawerOpen(true);
+                        }}
+                        className="
+                          mt-4
+                          w-full
+                          flex
+                          items-center
+                          justify-between
+                          rounded-xl
+                          px-4
+                          py-3
+                          transition-all
+                        "
+                        style={{
+                          backgroundColor: "#2D241F",
+                          border: "1px solid #42362F",
+                          color: "#B89D82",
+                        }}
+                      >
+                        <span className="font-medium">Customize</span>
+
+                        <span className="text-lg">→</span>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <CustomizeDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        service={selectedService}
+      />
+    </>
   );
 }

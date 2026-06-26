@@ -13,7 +13,7 @@ export default function Navbar() {
           justify-between
           px-8
           lg:px-16
-          py-5
+          py-4
           backdrop-blur-md
           bg-black/30
           border-b
@@ -21,13 +21,48 @@ export default function Navbar() {
         "
       >
         {/* Logo */}
-        <Link to="/" className="text-xl font-semibold tracking-tight">
-          EVENT
-          <span className="text-blue-500"> CANVAS</span>
+        <Link to="/" className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="EventCanvas Logo"
+            className="
+              h-11
+              w-11
+              object-contain
+              drop-shadow-[0_0_30px_rgba(59,130,246,0.4)]
+            "
+          />
+
+          <span className="text-xl font-semibold tracking-tight">
+            <span className="text-white">EVENT</span>
+            <span
+              className="ml-1"
+              style={{
+                color: "#42362F",
+              }}
+            >
+              CANVAS
+            </span>
+          </span>
         </Link>
 
         {/* Navigation */}
+
         <nav className="hidden md:flex items-center gap-8">
+          <Link
+            to="/"
+            className="
+              text-sm
+              uppercase
+              tracking-widest
+              text-white/60
+              hover:text-white
+              transition
+            "
+          >
+            Home
+          </Link>
+
           <Link
             to="/products"
             className="
@@ -36,52 +71,10 @@ export default function Navbar() {
               tracking-widest
               text-white/60
               hover:text-white
-              transition-colors
+              transition
             "
           >
             Products
-          </Link>
-
-          <Link
-            to="/services"
-            className="
-              text-sm
-              uppercase
-              tracking-widest
-              text-white/60
-              hover:text-white
-              transition-colors
-            "
-          >
-            Services
-          </Link>
-
-          <Link
-            to="/how-it-works"
-            className="
-              text-sm
-              uppercase
-              tracking-widest
-              text-white/60
-              hover:text-white
-              transition-colors
-            "
-          >
-            How It Works
-          </Link>
-
-          <Link
-            to="/about"
-            className="
-              text-sm
-              uppercase
-              tracking-widest
-              text-white/60
-              hover:text-white
-              transition-colors
-            "
-          >
-            About
           </Link>
 
           <Link
@@ -92,7 +85,7 @@ export default function Navbar() {
               tracking-widest
               text-white/60
               hover:text-white
-              transition-colors
+              transition
             "
           >
             Contact
@@ -100,37 +93,30 @@ export default function Navbar() {
         </nav>
 
         {/* Right Side */}
+
         <div className="flex items-center gap-3">
-          <Link
-            to="/cart"
+          <button
             className="
-              bg-blue-500
-              hover:bg-blue-600
               transition
               px-5
               py-2
               rounded-lg
               font-medium
+              text-white
+              shadow-lg
             "
+            style={{
+              backgroundColor: "#42362F",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#5A4A40";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#42362F";
+            }}
           >
             QuoteBag ({items.length})
-          </Link>
-
-          <Link
-            to="/contact"
-            className="
-              hidden
-              md:block
-              bg-white/10
-              hover:bg-white/20
-              transition
-              px-5
-              py-2
-              rounded-lg
-            "
-          >
-            Get Quote
-          </Link>
+          </button>
         </div>
       </div>
     </header>

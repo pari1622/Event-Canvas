@@ -1,56 +1,93 @@
-import { lazy, Suspense } from "react";
-
-const Spline = lazy(() => import("@splinetool/react-spline"));
+import CursorReveal from "./CursorReveal";
 
 export default function HeroSection() {
   return (
-    <section className="relative h-screen flex items-end overflow-hidden bg-black">
-      {/* Spline Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <Suspense fallback={<div className="absolute inset-0 bg-black" />}>
-          <Spline
-            scene="https://prod.spline.design/Slk6b8kz3LRlKiyk/scene.splinecode"
-            className="w-full h-full"
-          />
-        </Suspense>
-      </div>
+    <section className="relative h-screen overflow-hidden bg-black">
+      <CursorReveal
+        baseImage="/images/office-base.png"
+        revealImage="/images/office-reveal.png"
+      >
+        <div className="relative z-20 h-full flex items-center">
+          <div className="max-w-7xl mx-auto w-full px-8 lg:px-16 flex items-center">
+            {/* LEFT CONTENT */}
 
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+            <div className="max-w-3xl">
+              <h1 className="text-[clamp(3.5rem,8vw,6rem)] font-black leading-[0.95] tracking-tight text-white">
+                EVENT
+                <span
+                  style={{
+                    color: "#42362F",
+                  }}
+                >
+                  {" "}
+                  CANVAS
+                </span>
+              </h1>
 
-      {/* Blue Tint Overlay */}
-      <div className="absolute inset-0 bg-blue-500/10 mix-blend-screen pointer-events-none" />
+              <p className="mt-5 text-2xl text-white/80">
+                We implement packaging correctly.
+              </p>
 
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-2xl px-6 md:px-10 pb-10 pt-32">
-        <h1 className="text-[clamp(3rem,8vw,6rem)] font-bold leading-[1.05] tracking-[-0.05em] uppercase">
-          EVENT
-          <span className="text-blue-500"> CANVAS</span>
-        </h1>
+              <p className="mt-7 text-lg text-white/60 leading-relaxed max-w-xl">
+                Browse products, submit custom requirements, and receive
+                personalized quotations tailored to your branding and printing
+                needs.
+              </p>
 
-        <p className="mt-4 text-[clamp(1.125rem,2.5vw,1.875rem)] text-white/80">
-          We implement packaging correctly.
-        </p>
+              <div className="flex gap-5 mt-10">
+                {/* Book a Call */}
 
-        <p className="mt-6 text-white/60 text-lg max-w-xl">
-          Browse products, submit custom requirements, and receive personalized
-          quotations tailored to your branding and printing needs.
-        </p>
+                <button
+                  className="
+                    transition
+                    px-8
+                    py-4
+                    rounded-xl
+                    font-semibold
+                    text-white
+                    shadow-lg
+                  "
+                  style={{
+                    backgroundColor: "#42362F",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#5A4A40";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#42362F";
+                  }}
+                >
+                  Book a Call
+                </button>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <button className="bg-blue-500 text-black px-8 py-4 rounded-sm font-semibold hover:brightness-110 transition">
-            Book a Call
-          </button>
+                {/* Our Work */}
 
-          <button className="bg-white text-black px-8 py-4 rounded-sm font-semibold hover:brightness-90 transition">
-            Our Work
-          </button>
+                <button
+                  className="
+                    border
+                    border-white/20
+                    bg-white/5
+                    backdrop-blur-md
+                    hover:border-white/40
+                    transition
+                    px-8
+                    py-4
+                    rounded-xl
+                    font-semibold
+                    text-white
+                  "
+                >
+                  Our Work
+                </button>
+              </div>
+
+              <p className="mt-10 text-white/40 text-sm">
+                Trusted printing partner • Premium quality • Fast delivery
+              </p>
+            </div>
+          </div>
         </div>
-
-        <p className="mt-6 text-xs text-white/40">
-          Trusted printing partner. Custom quotes. Fast delivery.
-        </p>
-      </div>
+      </CursorReveal>
     </section>
   );
 }
