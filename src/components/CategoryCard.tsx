@@ -8,7 +8,6 @@ type CategoryCardProps = {
   description: string;
   slug: string;
   products: string[];
-
   expanded: boolean;
   onToggle: () => void;
 };
@@ -24,7 +23,10 @@ export default function CategoryCard({
   const { items, addToCart } = useCart();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+
   const [selectedService, setSelectedService] = useState("");
+
+  const [selectedItemId, setSelectedItemId] = useState<number>();
 
   const handleAdd = (service: string) => {
     addToCart({
@@ -32,6 +34,7 @@ export default function CategoryCard({
       name: service,
       category: title,
       image,
+      addedAt: Date.now(),
     });
   };
 
@@ -142,7 +145,6 @@ export default function CategoryCard({
                   >
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium text-white">{service}</h4>
-
                       {!cartItem ? (
                         <button
                           onClick={() => handleAdd(service)}
@@ -179,6 +181,7 @@ export default function CategoryCard({
                       <button
                         onClick={() => {
                           setSelectedService(service);
+                          setSelectedItemId(cartItem.id);
                           setDrawerOpen(true);
                         }}
                         className="
@@ -213,8 +216,12 @@ export default function CategoryCard({
 
       <CustomizeDrawer
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={() => {
+          setDrawerOpen(false);
+          setSelectedItemId(undefined);
+        }}
         service={selectedService}
+        itemId={selectedItemId}
       />
     </>
   );

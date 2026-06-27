@@ -25,10 +25,9 @@ export type CartItem = {
   name: string;
   category: string;
   image: string;
-
-  // New
   customized: boolean;
-  customization: Customization | null;
+  customization?: Customization;
+  addedAt: number;
 };
 
 type CartContextType = {
@@ -62,7 +61,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         {
           ...item,
           customized: false,
-          customization: null,
+          customization: undefined,
+          addedAt: Date.now(),
         },
       ];
     });

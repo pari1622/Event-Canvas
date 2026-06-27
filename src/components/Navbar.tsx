@@ -115,7 +115,47 @@ export default function Navbar() {
               e.currentTarget.style.backgroundColor = "#42362F";
             }}
           >
-            QuoteBag ({items.length})
+            <Link
+              to="/quotebag"
+              className="
+    relative
+    px-6
+    py-3
+    rounded-xl
+    font-semibold
+    text-white
+    transition
+    hover:scale-105
+  "
+              style={{
+                backgroundColor: "#42362F",
+              }}
+            >
+              QuoteBag
+              {items.length > 0 && (
+                <span
+                  className="
+        absolute
+        -top-2
+        -right-2
+        w-6
+        h-6
+        rounded-full
+        flex
+        items-center
+        justify-center
+        text-xs
+        font-bold
+      "
+                  style={{
+                    backgroundColor: "#B89D82",
+                    color: "#110D0B",
+                  }}
+                >
+                  {items.length}
+                </span>
+              )}
+            </Link>
           </button>
         </div>
       </div>

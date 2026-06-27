@@ -1,17 +1,31 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { customizationFields } from "../data/customizationFields";
-import { useCart } from "../context/CartContext";
+import { useCart, type Customization } from "../context/CartContext";
 
 type CustomizeDrawerProps = {
   open: boolean;
   onClose: () => void;
   service: string;
+  itemId?: number;
+};
+
+const emptyCustomization: Customization = {
+  quantity: 100,
+  material: "",
+  paper: "",
+  size: "",
+  lamination: "",
+  printing: "",
+  color: "",
+  notes: "",
+  file: "",
 };
 
 export default function CustomizeDrawer({
   open,
   onClose,
   service,
+  itemId,
 }: CustomizeDrawerProps) {
   const { items, updateCustomization } = useCart();
 
@@ -19,32 +33,34 @@ export default function CustomizeDrawer({
     return customizationFields[service] ?? customizationFields.default;
   }, [service]);
 
-  const existingItem = items.find((item) => item.name === service);
+  const currentItem = useMemo(() => {
+    if (itemId !== undefined) {
+      return items.find((item) => item.id === itemId);
+    }
 
-  const existingCustomization = existingItem?.customization ?? {};
+    return items.find((item) => item.name === service);
+  }, [items, itemId, service]);
 
-  const [formData, setFormData] = useState<any>({
-    quantity: existingCustomization.quantity ?? 100,
+  const [formData, setFormData] = useState<Customization>(emptyCustomization);
 
-    material: existingCustomization.material ?? "",
+  useEffect(() => {
+    if (!open) return;
 
-    paper: existingCustomization.paper ?? "",
+    if (currentItem?.customization) {
+      setFormData({
+        ...emptyCustomization,
+        ...currentItem.customization,
+      });
+    } else {
+      setFormData(emptyCustomization);
+    }
+  }, [open, currentItem]);
 
-    size: existingCustomization.size ?? "",
-
-    lamination: existingCustomization.lamination ?? "",
-
-    printing: existingCustomization.printing ?? "",
-
-    color: existingCustomization.color ?? "",
-
-    notes: existingCustomization.notes ?? "",
-
-    file: existingCustomization.file ?? "",
-  });
-
-  const selectOption = (field: string, value: string) => {
-    setFormData((prev: any) => ({
+  const updateField = <K extends keyof Customization>(
+    field: K,
+    value: Customization[K],
+  ) => {
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -55,20 +71,16 @@ export default function CustomizeDrawer({
 
     if (!file) return;
 
-    setFormData((prev: any) => ({
-      ...prev,
-      file: file.name,
-    }));
+    updateField("file", file.name);
   };
 
   const saveCustomization = () => {
-    if (!existingItem) return;
+    if (!currentItem) return;
 
-    updateCustomization(existingItem.id, formData);
+    updateCustomization(currentItem.id, formData);
 
     onClose();
   };
-
   return (
     <>
       {/* BACKDROP */}
@@ -76,50 +88,42 @@ export default function CustomizeDrawer({
       <div
         onClick={onClose}
         className={`
-          fixed
-          inset-0
-          bg-black/60
-          backdrop-blur-sm
-          transition-all
-          duration-300
-          z-[90]
+        fixed inset-0
+        bg-black/60
+        backdrop-blur-sm
+        transition-all
+        duration-300
+        z-[90]
 
-          ${open ? "opacity-100" : "opacity-0 pointer-events-none"}
-        `}
+        ${open ? "opacity-100" : "opacity-0 pointer-events-none"}
+      `}
       />
 
       {/* DRAWER */}
 
       <div
         className={`
-          fixed
-          top-20
-          right-0
-          h-[calc(100vh-80px)]
-          w-full
-          sm:w-[560px]
+        fixed
+        top-20
+        right-0
+        h-[calc(100vh-80px)]
+        w-full
+        sm:w-[560px]
+        bg-[#110D0B]
+        border-l
+        border-[#42362F]
+        overflow-y-auto
+        transition-transform
+        duration-500
+        z-[100]
 
-          bg-[#110D0B]
-
-          border-l
-
-          border-[#42362F]
-
-          overflow-y-auto
-
-          transition-transform
-
-          duration-500
-
-          z-[100]
-
-          ${open ? "translate-x-0" : "translate-x-full"}
-        `}
+        ${open ? "translate-x-0" : "translate-x-full"}
+      `}
       >
         {/* HEADER */}
 
         <div className="sticky top-0 bg-[#110D0B] border-b border-[#42362F] px-8 py-6">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <div>
               <p
                 className="uppercase text-xs tracking-[0.3em]"
@@ -139,12 +143,14 @@ export default function CustomizeDrawer({
           </div>
         </div>
 
+        {/* BODY */}
+
         <div className="p-8 space-y-8">
           {configuration.fields.map((field) => {
             switch (field.type) {
               case "quantity":
                 return (
-                  <div>
+                  <div key="quantity">
                     <h3 className="text-xl font-semibold mb-5">
                       {field.label}
                     </h3>
@@ -152,36 +158,32 @@ export default function CustomizeDrawer({
                     <input
                       type="number"
                       min={1}
-                      placeholder="Enter quantity (e.g. 500)"
-                      value={formData.quantity}
+                      value={formData.quantity ?? ""}
+                      placeholder="Enter Quantity"
                       onChange={(e) =>
-                        setFormData((prev: any) => ({
-                          ...prev,
-                          quantity: Number(e.target.value),
-                        }))
+                        updateField("quantity", Number(e.target.value))
                       }
                       className="
-      w-full
-      rounded-2xl
-      bg-white/5
-      border
-      border-[#42362F]
-      p-4
-      text-lg
-      outline-none
-      focus:border-[#8C7461]
-      transition-all
-    "
+                      w-full
+                      rounded-2xl
+                      bg-white/5
+                      border
+                      border-[#42362F]
+                      p-4
+                      text-lg
+                      outline-none
+                      focus:border-[#8C7461]
+                    "
                     />
                   </div>
                 );
 
               case "material":
               case "paper":
+              case "size":
               case "lamination":
               case "printing":
               case "color":
-              case "size":
                 return (
                   <div key={field.type}>
                     <h3 className="text-xl font-semibold mb-5">
@@ -192,20 +194,22 @@ export default function CustomizeDrawer({
                       {field.options?.map((option) => (
                         <button
                           key={option}
-                          onClick={() => selectOption(field.type, option)}
+                          type="button"
+                          onClick={() => updateField(field.type, option)}
                           className={`
-                            px-5
-                            py-3
-                            rounded-full
-                            transition-all
-                            duration-300
+                          px-5
+                          py-3
+                          rounded-full
+                          border
+                          transition-all
 
-                            ${
-                              formData[field.type] === option
-                                ? "bg-[#42362F] border border-[#B89D82]"
-                                : "bg-white/5 border border-[#42362F]"
-                            }
-                          `}
+                          ${
+                            formData[field.type as keyof Customization] ===
+                            option
+                              ? "bg-[#42362F] border-[#B89D82]"
+                              : "bg-white/5 border-[#42362F]"
+                          }
+                        `}
                         >
                           {option}
                         </button>
@@ -216,33 +220,30 @@ export default function CustomizeDrawer({
 
               case "upload":
                 return (
-                  <div key={field.type}>
+                  <div key="upload">
                     <h3 className="text-xl font-semibold mb-5">
                       {field.label}
                     </h3>
 
                     <label
                       className="
-                        flex
-                        flex-col
-                        items-center
-                        justify-center
-                        rounded-2xl
-                        border-2
-                        border-dashed
-                        border-[#42362F]
-                        h-44
-                        cursor-pointer
-                        hover:bg-white/5
-                        transition
-                      "
+                      flex
+                      flex-col
+                      items-center
+                      justify-center
+                      rounded-2xl
+                      border-2
+                      border-dashed
+                      border-[#42362F]
+                      h-44
+                      cursor-pointer
+                      hover:bg-white/5
+                    "
                     >
                       <span className="text-5xl">📁</span>
 
                       <p className="mt-3 text-white/60">
-                        {formData.file
-                          ? formData.file
-                          : "Click to Upload Design"}
+                        {formData.file || "Click to Upload Design"}
                       </p>
 
                       <input
@@ -256,25 +257,25 @@ export default function CustomizeDrawer({
 
               case "notes":
                 return (
-                  <div key={field.type}>
+                  <div key="notes">
                     <h3 className="text-xl font-semibold mb-5">
                       {field.label}
                     </h3>
 
                     <textarea
                       rows={5}
-                      value={formData.notes}
-                      onChange={(e) => selectOption("notes", e.target.value)}
+                      value={formData.notes ?? ""}
+                      onChange={(e) => updateField("notes", e.target.value)}
                       className="
-                        w-full
-                        rounded-2xl
-                        bg-white/5
-                        border
-                        border-[#42362F]
-                        p-4
-                        outline-none
-                        resize-none
-                      "
+                      w-full
+                      rounded-2xl
+                      bg-white/5
+                      border
+                      border-[#42362F]
+                      p-4
+                      outline-none
+                      resize-none
+                    "
                     />
                   </div>
                 );
@@ -286,18 +287,20 @@ export default function CustomizeDrawer({
           {/* SAVE BUTTON */}
 
           <button
+            type="button"
             onClick={saveCustomization}
             className="
-              w-full
-              py-4
-              rounded-xl
-              text-lg
-              font-semibold
-              text-white
-              transition-all
-              duration-300
-              hover:scale-[1.02]
-            "
+            w-full
+            py-4
+            rounded-xl
+            text-lg
+            font-semibold
+            text-white
+            transition-all
+            duration-300
+            hover:scale-[1.02]
+            hover:bg-[#5A4A40]
+          "
             style={{
               backgroundColor: "#42362F",
             }}

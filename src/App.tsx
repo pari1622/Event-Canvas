@@ -5,6 +5,7 @@ import Products from "./pages/Products";
 import Contact from "./pages/Contact";
 
 import ScrollToTop from "./components/ScrollToTop";
+import QuoteBag from "./pages/QuoteBag";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
 
         {/* Contact */}
         <Route path="/contact" element={<Contact />} />
+        <Route path="/quotebag" element={<QuoteBag />} />
       </Routes>
     </BrowserRouter>
   );
