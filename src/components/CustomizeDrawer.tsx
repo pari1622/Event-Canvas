@@ -10,7 +10,7 @@ type CustomizeDrawerProps = {
 };
 
 const emptyCustomization: Customization = {
-  quantity: 100,
+  quantity: 10,
   material: "",
   paper: "",
   size: "",
@@ -195,7 +195,12 @@ export default function CustomizeDrawer({
                         <button
                           key={option}
                           type="button"
-                          onClick={() => updateField(field.type, option)}
+                          onClick={() =>
+                            updateField(
+                              field.type as keyof Customization,
+                              option,
+                            )
+                          }
                           className={`
                           px-5
                           py-3

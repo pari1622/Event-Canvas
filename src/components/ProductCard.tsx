@@ -35,6 +35,7 @@ export default function ProductCard({
               name,
               category,
               image,
+              addedAt: Date.now(),
             })
           }
           className="mt-5 w-full bg-blue-500 py-3 rounded-lg"
