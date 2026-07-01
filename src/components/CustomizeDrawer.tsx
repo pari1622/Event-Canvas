@@ -18,7 +18,9 @@ const emptyCustomization: Customization = {
   printing: "",
   color: "",
   notes: "",
-  file: "",
+  file: undefined,
+  fileName: "",
+  fileUrl: "",
 };
 
 export default function CustomizeDrawer({
@@ -28,6 +30,9 @@ export default function CustomizeDrawer({
   itemId,
 }: CustomizeDrawerProps) {
   const { items, updateCustomization } = useCart();
+  const existingItem = items.find((item) =>
+    itemId ? item.id === itemId : item.name === service,
+  );
 
   const configuration = useMemo(() => {
     return customizationFields[service] ?? customizationFields.default;
@@ -67,17 +72,24 @@ export default function CustomizeDrawer({
   };
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const selectedFile = e.target.files?.[0];
 
-    if (!file) return;
+    if (!selectedFile) return;
 
-    updateField("file", file.name);
+    setFormData((prev: any) => ({
+      ...prev,
+      file: selectedFile,
+      fileName: selectedFile.name,
+      fileUrl: URL.createObjectURL(selectedFile),
+    }));
   };
 
   const saveCustomization = () => {
-    if (!currentItem) return;
+    if (!existingItem) return;
 
-    updateCustomization(currentItem.id, formData);
+    updateCustomization(existingItem.id, {
+      ...formData,
+    });
 
     onClose();
   };
@@ -248,7 +260,9 @@ export default function CustomizeDrawer({
                       <span className="text-5xl">📁</span>
 
                       <p className="mt-3 text-white/60">
-                        {formData.file || "Click to Upload Design"}
+                        {formData.fileName
+                          ? formData.fileName
+                          : "Click to Upload Design"}
                       </p>
 
                       <input

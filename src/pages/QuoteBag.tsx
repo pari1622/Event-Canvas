@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import CustomizeDrawer from "../components/CustomizeDrawer";
 import { useCart } from "../context/CartContext";
 
 export default function QuoteBag() {
-  const { items, removeFromCart } = useCart();
+  const { items, removeFromCart, clearCart } = useCart();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -13,16 +13,111 @@ export default function QuoteBag() {
     service: string;
   } | null>(null);
 
-  const [customer, setCustomer] = useState({
-    name: "",
-    company: "",
-    email: "",
-    phone: "",
-    gst: "",
-    address: "",
-    deliveryDate: "",
-    notes: "",
+  const [customer, setCustomer] = useState(() => {
+    const savedCustomer = localStorage.getItem("eventcanvas-customer");
+
+    if (!savedCustomer) {
+      return {
+        name: "",
+        company: "",
+        email: "",
+        phone: "",
+        gst: "",
+        address: "",
+        deliveryDate: "",
+        notes: "",
+      };
+    }
+
+    try {
+      return JSON.parse(savedCustomer);
+    } catch {
+      return {
+        name: "",
+        company: "",
+        email: "",
+        phone: "",
+        gst: "",
+        address: "",
+        deliveryDate: "",
+        notes: "",
+      };
+    }
   });
+
+  useEffect(() => {
+    localStorage.setItem("eventcanvas-customer", JSON.stringify(customer));
+  }, [customer]);
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setCustomer({
+        name: "",
+        company: "",
+        email: "",
+        phone: "",
+        gst: "",
+        address: "",
+        deliveryDate: "",
+        notes: "",
+      });
+
+      localStorage.removeItem("eventcanvas-customer");
+    }
+  }, [items]);
+
+  const validateQuote = () => {
+    if (items.length === 0) {
+      alert("Your QuoteBag is empty.");
+      return false;
+    }
+
+    if (!customer.name.trim()) {
+      alert("Please enter your full name.");
+      return false;
+    }
+
+    if (!customer.email.trim()) {
+      alert("Please enter your email.");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(customer.email)) {
+      alert("Please enter a valid email.");
+      return false;
+    }
+
+    if (!customer.phone.trim()) {
+      alert("Please enter your phone number.");
+      return false;
+    }
+
+    if (!/^\d{10}$/.test(customer.phone)) {
+      alert("Phone number must contain exactly 10 digits.");
+      return false;
+    }
+
+    if (!customer.address.trim()) {
+      alert("Please enter delivery address.");
+      return false;
+    }
+
+    if (!customer.deliveryDate) {
+      alert("Please choose a delivery date.");
+      return false;
+    }
+
+    const pending = items.filter((item) => !item.customized);
+
+    if (pending.length > 0) {
+      alert("Please customize every service before submitting.");
+      return false;
+    }
+
+    return true;
+  };
 
   return (
     <>
@@ -40,11 +135,7 @@ export default function QuoteBag() {
           overflow-hidden
         "
       >
-        {/* Background */}
-
         <div className="absolute inset-0 bg-gradient-to-b from-[#221A16] via-[#110D0B] to-[#060505]" />
-
-        {/* Grid */}
 
         <div className="absolute inset-0 opacity-20">
           <div
@@ -65,16 +156,43 @@ export default function QuoteBag() {
               color: "#8C7461",
             }}
           >
-            EventCanvas
+            EVENTCANVAS
           </p>
 
-          <h1 className="mt-4 text-5xl md:text-7xl font-bold">QuoteBag</h1>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mt-4">
+            <div>
+              <h1 className="text-5xl md:text-7xl font-bold">
+                QuoteBag ({items.length})
+              </h1>
 
-          <p className="mt-5 max-w-2xl text-white/60">
-            Review every selected service before submitting your quotation
-            request.
-          </p>
+              <p className="mt-5 max-w-2xl text-white/60">
+                Review every selected service before submitting your quotation
+                request.
+              </p>
+            </div>
 
+            {items.length > 0 && (
+              <button
+                onClick={() => {
+                  clearCart();
+                  localStorage.removeItem("eventcanvas-customer");
+                }}
+                className="
+                  rounded-xl
+                  border
+                  border-red-500
+                  px-6
+                  py-3
+                  text-red-400
+                  transition
+                  hover:bg-red-600
+                  hover:text-white
+                "
+              >
+                Clear QuoteBag
+              </button>
+            )}
+          </div>
           {items.length === 0 ? (
             <div
               className="
@@ -143,7 +261,18 @@ export default function QuoteBag() {
                               }}
                             >
                               {item.customized
-                                ? "✓ Customized"
+                                ? `✓ Customized • ${
+                                    Object.entries(
+                                      item.customization ?? {},
+                                    ).filter(
+                                      ([key, value]) =>
+                                        key !== "file" &&
+                                        key !== "fileUrl" &&
+                                        key !== "fileName" &&
+                                        value !== undefined &&
+                                        value !== "",
+                                    ).length
+                                  } Specifications`
                                 : "Pending Customization"}
                             </p>
                           </div>
@@ -179,6 +308,14 @@ export default function QuoteBag() {
                               <div className="grid md:grid-cols-2 gap-4">
                                 {Object.entries(item.customization).map(
                                   ([key, value]) => {
+                                    if (
+                                      key === "file" ||
+                                      key === "fileUrl" ||
+                                      key === "fileName"
+                                    ) {
+                                      return null;
+                                    }
+
                                     if (!value) return null;
 
                                     return (
@@ -211,8 +348,6 @@ export default function QuoteBag() {
                               </div>
                             </div>
 
-                            {/* ACTION BUTTONS */}
-
                             <div className="flex gap-4 mt-8">
                               <button
                                 type="button"
@@ -238,11 +373,69 @@ export default function QuoteBag() {
                               </button>
 
                               <button
+                                type="button"
+                                onClick={() => {
+                                  if (!item.customization?.fileUrl) {
+                                    alert("No design uploaded.");
+                                    return;
+                                  }
+
+                                  const previewWindow = window.open(
+                                    "",
+                                    "_blank",
+                                  );
+
+                                  if (!previewWindow) return;
+
+                                  previewWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+<title>${item.name}</title>
+<style>
+body{
+margin:0;
+background:#111;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+overflow:hidden;
+}
+
+img{
+max-width:95%;
+max-height:95%;
+object-fit:contain;
+}
+
+iframe{
+width:100%;
+height:100%;
+border:none;
+}
+</style>
+</head>
+
+<body>
+${
+  item.customization.fileName?.toLowerCase().endsWith(".pdf")
+    ? `<iframe src="${item.customization.fileUrl}"></iframe>`
+    : `<img src="${item.customization.fileUrl}" />`
+}
+</body>
+</html>
+`);
+
+                                  previewWindow.document.close();
+                                }}
                                 className="
                                   rounded-xl
                                   px-6
                                   py-3
                                   text-white
+                                  transition
+                                  hover:opacity-90
                                 "
                                 style={{
                                   backgroundColor: "#42362F",
@@ -285,8 +478,7 @@ export default function QuoteBag() {
                   </div>
                 ))}
               </div>
-
-              {/* CUSTOMER FORM */}
+              {/* CUSTOMER DETAILS */}
 
               <div
                 className="
@@ -308,6 +500,10 @@ export default function QuoteBag() {
                   CUSTOMER DETAILS
                 </p>
 
+                <h2 className="mt-4 text-4xl font-bold">
+                  Tell us about your project
+                </h2>
+
                 <p className="mt-4 text-white/60">
                   These details help us prepare an accurate quotation.
                 </p>
@@ -322,7 +518,14 @@ export default function QuoteBag() {
                         name: e.target.value,
                       })
                     }
-                    className="rounded-xl border border-[#42362F] bg-[#1A1512] p-4 outline-none"
+                    className="
+                      rounded-xl
+                      border
+                      border-[#42362F]
+                      bg-[#1A1512]
+                      p-4
+                      outline-none
+                    "
                   />
 
                   <input
@@ -334,7 +537,14 @@ export default function QuoteBag() {
                         company: e.target.value,
                       })
                     }
-                    className="rounded-xl border border-[#42362F] bg-[#1A1512] p-4 outline-none"
+                    className="
+                      rounded-xl
+                      border
+                      border-[#42362F]
+                      bg-[#1A1512]
+                      p-4
+                      outline-none
+                    "
                   />
 
                   <input
@@ -346,7 +556,14 @@ export default function QuoteBag() {
                         email: e.target.value,
                       })
                     }
-                    className="rounded-xl border border-[#42362F] bg-[#1A1512] p-4 outline-none"
+                    className="
+                      rounded-xl
+                      border
+                      border-[#42362F]
+                      bg-[#1A1512]
+                      p-4
+                      outline-none
+                    "
                   />
 
                   <input
@@ -358,8 +575,16 @@ export default function QuoteBag() {
                         phone: e.target.value,
                       })
                     }
-                    className="rounded-xl border border-[#42362F] bg-[#1A1512] p-4 outline-none"
+                    className="
+                      rounded-xl
+                      border
+                      border-[#42362F]
+                      bg-[#1A1512]
+                      p-4
+                      outline-none
+                    "
                   />
+
                   <input
                     placeholder="GST Number (Optional)"
                     value={customer.gst}
@@ -369,7 +594,14 @@ export default function QuoteBag() {
                         gst: e.target.value,
                       })
                     }
-                    className="rounded-xl border border-[#42362F] bg-[#1A1512] p-4 outline-none"
+                    className="
+                      rounded-xl
+                      border
+                      border-[#42362F]
+                      bg-[#1A1512]
+                      p-4
+                      outline-none
+                    "
                   />
 
                   <input
@@ -381,7 +613,14 @@ export default function QuoteBag() {
                         deliveryDate: e.target.value,
                       })
                     }
-                    className="rounded-xl border border-[#42362F] bg-[#1A1512] p-4 outline-none"
+                    className="
+                      rounded-xl
+                      border
+                      border-[#42362F]
+                      bg-[#1A1512]
+                      p-4
+                      outline-none
+                    "
                   />
 
                   <textarea
@@ -429,8 +668,7 @@ export default function QuoteBag() {
                   />
                 </div>
               </div>
-
-              {/* FOOTER */}
+              {/* QUOTE SUMMARY */}
 
               <div
                 className="
@@ -468,7 +706,18 @@ export default function QuoteBag() {
                   </div>
 
                   <button
-                    className="
+                    type="button"
+                    onClick={() => {
+                      if (!validateQuote()) return;
+
+                      alert("Quote request submitted successfully!");
+
+                      clearCart();
+
+                      localStorage.removeItem("eventcanvas-customer");
+                    }}
+                    disabled={items.length === 0}
+                    className={`
                       rounded-2xl
                       px-12
                       py-5
@@ -477,8 +726,12 @@ export default function QuoteBag() {
                       text-white
                       transition-all
                       duration-300
-                      hover:scale-105
-                    "
+                      ${
+                        items.length === 0
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:scale-105"
+                      }
+                    `}
                     style={{
                       backgroundColor: "#42362F",
                     }}

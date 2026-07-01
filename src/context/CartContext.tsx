@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type Customization = {
   quantity?: number;
@@ -17,17 +23,27 @@ export type Customization = {
 
   notes?: string;
 
-  file?: string;
+  file?: File;
+
+  fileName?: string;
+
+  fileUrl?: string;
 };
 
 export type CartItem = {
   id: number;
+
   name: string;
+
   category: string;
+
   image: string;
-  customized: boolean;
-  customization?: Customization;
+
   addedAt: number;
+
+  customized: boolean;
+
+  customization?: Customization;
 };
 
 type CartContextType = {
@@ -45,32 +61,45 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(() => {
+    const savedCart = localStorage.getItem("eventcanvas-cart");
+
+    if (!savedCart) return [];
+
+    try {
+      return JSON.parse(savedCart);
+    } catch {
+      return [];
+    }
+  });
+  useEffect(() => {
+    localStorage.setItem("eventcanvas-cart", JSON.stringify(items));
+  }, [items]);
 
   const addToCart = (item: Omit<CartItem, "customized" | "customization">) => {
     setItems((prev) => {
-      const alreadyExists = prev.find(
+      const exists = prev.find(
         (product) =>
           product.name === item.name && product.category === item.category,
       );
 
-      if (alreadyExists) return prev;
+      if (exists) {
+        return prev;
+      }
 
       return [
         ...prev,
         {
           ...item,
           customized: false,
-          customization: undefined,
-          addedAt: Date.now(),
+          customization: {},
         },
       ];
     });
   };
-
   const updateCustomization = (id: number, customization: Customization) => {
-    setItems((prev) =>
-      prev.map((item) =>
+    setItems((prev) => {
+      const updated = prev.map((item) =>
         item.id === id
           ? {
               ...item,
@@ -78,8 +107,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
               customization,
             }
           : item,
-      ),
-    );
+      );
+
+      localStorage.setItem("eventcanvas-cart", JSON.stringify(updated));
+
+      return updated;
+    });
   };
 
   const removeFromCart = (id: number) => {
@@ -87,6 +120,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const clearCart = () => {
+    if (!window.confirm("Are you sure you want to clear your QuoteBag?")) {
+      return;
+    }
+
+    localStorage.removeItem("eventcanvas-cart");
+
     setItems([]);
   };
 
