@@ -7,7 +7,7 @@ type CategoryCardProps = {
   image: string;
   description: string;
   slug: string;
-  products: string[];
+  products: any[];
   expanded: boolean;
   onToggle: () => void;
 };
@@ -20,7 +20,7 @@ export default function CategoryCard({
   expanded,
   onToggle,
 }: CategoryCardProps) {
-  const { items, addToCart } = useCart();
+  const { items } = useCart();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -28,16 +28,18 @@ export default function CategoryCard({
 
   const [selectedItemId, setSelectedItemId] = useState<number>();
 
-  const handleAdd = (service: string) => {
-    addToCart({
-      id: Date.now() + Math.random(),
-      name: service,
-      category: title,
-      image,
-      addedAt: Date.now(),
-    });
-  };
+  const handleAdd = async (product: any) => {
+    try {
+      const { addToQuoteBag } = await import("../services/quoteBagService");
 
+      await addToQuoteBag(product._id);
+
+      alert("Added to Quote Bag");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to add to Quote Bag");
+    }
+  };
   return (
     <>
       <div
@@ -59,7 +61,7 @@ export default function CategoryCard({
 
         <div className="overflow-hidden h-60">
           <img
-            src={image}
+            src={image || "https://placehold.co/600x400?text=EventCanvas"}
             alt={title}
             className="
               w-full
@@ -123,14 +125,15 @@ export default function CategoryCard({
             `}
           >
             <div className="space-y-4">
-              {products.map((service) => {
+              {products.map((product) => {
                 const cartItem = items.find(
-                  (item) => item.name === service && item.category === title,
+                  (item) =>
+                    item.name === product.name && item.category === title,
                 );
 
                 return (
                   <div
-                    key={service}
+                    key={product._id}
                     className="
                       rounded-xl
                       bg-white/[0.03]
@@ -144,10 +147,10 @@ export default function CategoryCard({
                     }}
                   >
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-white">{service}</h4>
+                      <h4 className="font-medium text-white">{product.name}</h4>
                       {!cartItem ? (
                         <button
-                          onClick={() => handleAdd(service)}
+                          onClick={() => handleAdd(product)}
                           className="
                             rounded-lg
                             px-4
@@ -180,8 +183,7 @@ export default function CategoryCard({
                     {cartItem && (
                       <button
                         onClick={() => {
-                          setSelectedService(service);
-                          setSelectedItemId(cartItem.id);
+                          setSelectedService(product.name);
                           setDrawerOpen(true);
                         }}
                         className="

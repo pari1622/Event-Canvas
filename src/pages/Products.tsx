@@ -1,10 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import CategoryCard from "../components/CategoryCard";
-import { categories } from "../data/categories";
+import { getCategories } from "../services/productService";
 
 export default function Products() {
-  const [openCategory, setOpenCategory] = useState<number | null>(null);
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      const data = await getCategories();
+      setCategories(data);
+    };
+
+    loadCategories();
+  }, []);
 
   return (
     <>
@@ -61,16 +72,19 @@ export default function Products() {
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8 mt-20">
             {categories.map((category) => (
               <CategoryCard
-                key={category.id}
-                title={category.title}
-                image={category.image}
+                key={category._id}
+                title={category.name}
+                image={
+                  category.image ||
+                  "https://placehold.co/600x400?text=EventCanvas"
+                }
                 description={category.description}
                 slug={category.slug}
                 products={category.products}
-                expanded={openCategory === category.id}
+                expanded={openCategory === category._id}
                 onToggle={() =>
                   setOpenCategory(
-                    openCategory === category.id ? null : category.id,
+                    openCategory === category._id ? null : category._id,
                   )
                 }
               />
