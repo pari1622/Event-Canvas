@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-transporter.verify((error, success) => {
+transporter.verify((error: Error | null, success: boolean) => {
   if (error) {
     console.error("❌ EMAIL VERIFY FAILED");
     console.error(error);
