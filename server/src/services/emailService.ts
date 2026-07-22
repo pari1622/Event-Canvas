@@ -28,7 +28,6 @@ const getEmailTemplate = (
           <td style="padding:8px;border-bottom:1px solid #eee;">
             ${item.product?.name || "Product"}
           </td>
-
           <td style="padding:8px;border-bottom:1px solid #eee;">
             ${item.quantity}
           </td>
@@ -55,26 +54,21 @@ const getEmailTemplate = (
       ${
         items.length
           ? `
-        <table
-          style="width:100%;border-collapse:collapse;margin-top:20px"
-        >
+      <table
+        style="width:100%;border-collapse:collapse;margin-top:20px"
+      >
+        <thead>
+          <tr>
+            <th align="left">Product</th>
+            <th align="left">Qty</th>
+          </tr>
+        </thead>
 
-          <thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
 
-            <tr>
-              <th align="left">Product</th>
-              <th align="left">Qty</th>
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            ${itemsHtml}
-
-          </tbody>
-
-        </table>
+      </table>
       `
           : ""
       }
@@ -82,11 +76,8 @@ const getEmailTemplate = (
       <hr style="margin-top:35px"/>
 
       <p style="color:#777">
-
         EventCanvas<br/>
-
         Printing • Branding • Merchandise • Event Management
-
       </p>
 
     </div>
@@ -100,7 +91,7 @@ const sendStatusEmail = async (
   data: OrderEmailData,
 ) => {
   const info = await transporter.sendMail({
-    from: `"EventCanvas" <${process.env.EMAIL_USER}>`,
+    from: `"EventCanvas" <${process.env.BREVO_USER}>`,
     to: data.to,
     subject,
 
@@ -179,15 +170,14 @@ export const sendCancelledEmail = async (data: OrderEmailData) =>
     "Your order has been cancelled.",
     data,
   );
-
 export const sendAdminNewOrderEmail = async (
   customerName: string,
   customerEmail: string,
   orderId: string,
 ) => {
   const info = await transporter.sendMail({
-    from: `"EventCanvas" <${process.env.EMAIL_USER}>`,
-    to: process.env.EMAIL_USER,
+    from: `"EventCanvas" <${process.env.BREVO_USER}>`,
+    to: process.env.BREVO_USER,
 
     subject: "🚨 New Order Received",
 
@@ -213,8 +203,8 @@ export const sendAdminNewOrderEmail = async (
 
 export const sendAdminNewUserEmail = async (name: string, email: string) => {
   const info = await transporter.sendMail({
-    from: `"EventCanvas" <${process.env.EMAIL_USER}>`,
-    to: process.env.EMAIL_USER,
+    from: `"EventCanvas" <${process.env.BREVO_USER}>`,
+    to: process.env.BREVO_USER,
 
     subject: "🎉 New User Registered",
 
@@ -235,6 +225,7 @@ export const sendAdminNewUserEmail = async (name: string, email: string) => {
 
   console.log("✅ Admin User Email:", info.messageId);
 };
+
 export const sendQuoteRequestEmail = async (
   customerName: string,
   customerEmail: string,
@@ -243,8 +234,8 @@ export const sendQuoteRequestEmail = async (
 ) => {
   try {
     const info = await transporter.sendMail({
-      from: `"EventCanvas" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
+      from: `"EventCanvas" <${process.env.BREVO_USER}>`,
+      to: process.env.BREVO_USER,
 
       subject: "📩 New Quote Request",
 
@@ -297,7 +288,6 @@ type QuoteEmailData = {
   customerName: string;
   quoteNumber: string;
   grandTotal: number;
-
   pdfPath: string;
 };
 
@@ -310,8 +300,7 @@ export const sendQuoteEmail = async ({
 }: QuoteEmailData) => {
   try {
     const info = await transporter.sendMail({
-      from: `"EventCanvas" <${process.env.EMAIL_USER}>`,
-
+      from: `"EventCanvas" <${process.env.BREVO_USER}>`,
       to,
 
       subject: `Quotation ${quoteNumber} is Ready`,
@@ -326,22 +315,13 @@ export const sendQuoteEmail = async ({
       html: `
       <div style="font-family:Arial;padding:40px;max-width:700px;margin:auto">
 
-        <h1
-          style="
-            color:#B89D82;
-            margin-bottom:30px;
-          "
-        >
+        <h1 style="color:#B89D82;margin-bottom:30px">
           Your EventCanvas Quotation is Ready
         </h1>
 
-        <p>
-          Hello <b>${customerName}</b>,
-        </p>
+        <p>Hello <b>${customerName}</b>,</p>
 
-        <p>
-          We've successfully prepared your quotation.
-        </p>
+        <p>We've successfully prepared your quotation.</p>
 
         <table
           style="
@@ -352,35 +332,17 @@ export const sendQuoteEmail = async ({
         >
 
           <tr>
-
-            <td
-              style="
-                padding:12px;
-                border:1px solid #ddd;
-              "
-            >
+            <td style="padding:12px;border:1px solid #ddd">
               Quote Number
             </td>
 
-            <td
-              style="
-                padding:12px;
-                border:1px solid #ddd;
-              "
-            >
+            <td style="padding:12px;border:1px solid #ddd">
               ${quoteNumber}
             </td>
-
           </tr>
 
           <tr>
-
-            <td
-              style="
-                padding:12px;
-                border:1px solid #ddd;
-              "
-            >
+            <td style="padding:12px;border:1px solid #ddd">
               Grand Total
             </td>
 
@@ -394,7 +356,6 @@ export const sendQuoteEmail = async ({
             >
               ₹ ${grandTotal.toLocaleString()}
             </td>
-
           </tr>
 
         </table>
@@ -410,13 +371,8 @@ export const sendQuoteEmail = async ({
         <hr style="margin:40px 0"/>
 
         <p style="color:#777">
-
-          EventCanvas
-
-          <br>
-
+          EventCanvas<br/>
           Printing • Branding • Merchandise • Event Management
-
         </p>
 
       </div>
@@ -430,17 +386,16 @@ export const sendQuoteEmail = async ({
   } catch (error) {
     console.error("❌ Quote Email Failed");
     console.error(error);
-
     throw error;
   }
 };
-
 export const sendOTPEmail = async (email: string, otp: string) => {
   try {
     const info = await transporter.sendMail({
-      from: `"EventCanvas" <${process.env.EMAIL_USER}>`,
+      from: `"EventCanvas" <${process.env.BREVO_USER}>`,
       to: email,
       subject: "EventCanvas Password Reset OTP",
+
       html: `
       <div
         style="
@@ -451,6 +406,7 @@ export const sendOTPEmail = async (email: string, otp: string) => {
           background:#fafafa;
         "
       >
+
         <h1
           style="
             color:#B89D82;
@@ -501,7 +457,7 @@ export const sendOTPEmail = async (email: string, otp: string) => {
           simply ignore this email.
         </p>
 
-        <hr style="margin:40px 0" />
+        <hr style="margin:40px 0"/>
 
         <p style="color:#777">
           EventCanvas<br/>
@@ -514,8 +470,11 @@ export const sendOTPEmail = async (email: string, otp: string) => {
 
     console.log("✅ OTP Email Sent");
     console.log(info.messageId);
+
+    return info;
   } catch (error) {
     console.error("❌ OTP Email Failed");
+    console.error(error);
     throw error;
   }
 };
