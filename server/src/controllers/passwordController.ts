@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import otpGenerator from "otp-generator";
+import crypto from "crypto";
 import User from "../models/User.js";
 import { sendOTPEmail } from "../services/emailService.js";
 
@@ -19,11 +19,7 @@ export const sendOTP = async (req: Request, res: Response) => {
       });
     }
 
-    const otp = otpGenerator.generate(6, {
-      upperCaseAlphabets: false,
-      lowerCaseAlphabets: false,
-      specialChars: false,
-    });
+    const otp = crypto.randomInt(100000, 1000000).toString();
 
     user.otp = await bcrypt.hash(otp, 10);
     user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
