@@ -5,6 +5,8 @@ import { loginUser, googleLogin } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
+  console.log("CLIENT_ID =", import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,11 +50,13 @@ const Login = () => {
 
       navigate(redirectTo, { replace: true });
     } catch (err: any) {
+      console.error(err);
       alert(err.response?.data?.message || "Google Login Failed");
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-[#110D0B] flex items-center justify-center px-6">
       <div className="w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl bg-[#1B1512] grid md:grid-cols-2">
@@ -106,9 +110,7 @@ const Login = () => {
               type="submit"
               disabled={loading}
               className="w-full rounded-xl py-4 font-semibold text-white transition hover:scale-[1.02] disabled:opacity-60"
-              style={{
-                backgroundColor: "#42362F",
-              }}
+              style={{ backgroundColor: "#42362F" }}
             >
               {loading ? "Signing In..." : "Login"}
             </button>
@@ -128,7 +130,12 @@ const Login = () => {
               shape="pill"
               size="large"
               width="350"
+              useOneTap={false}
+              auto_select={false}
+              ux_mode="popup"
               onSuccess={(credentialResponse) => {
+                console.log("Google Success", credentialResponse);
+
                 if (!credentialResponse.credential) {
                   alert("Google Login Failed");
                   return;
@@ -137,6 +144,7 @@ const Login = () => {
                 handleGoogleLogin(credentialResponse.credential);
               }}
               onError={() => {
+                console.error("Google Login Error");
                 alert("Google Login Failed");
               }}
             />

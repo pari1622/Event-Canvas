@@ -18,16 +18,29 @@ export const loginUser = async (userData: any) => {
 };
 
 export const googleLogin = async (token: string) => {
-  const { data } = await axios.post(`${API}/users/google`, {
-    token,
-  });
+  try {
+    console.log("POST:", `${API}/users/google`);
 
-  if (data.token) {
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    const { data } = await axios.post(`${API}/users/google`, {
+      token,
+    });
+
+    console.log("Google API Response:", data);
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+    }
+
+    return data;
+  } catch (error: any) {
+    console.error("Google Login Error");
+    console.error(error.response);
+    console.error(error.response?.data);
+    console.error(error.response?.status);
+
+    throw error;
   }
-
-  return data;
 };
 
 export const sendOTP = async (email: string) => {
