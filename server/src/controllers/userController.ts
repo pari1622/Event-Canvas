@@ -100,6 +100,9 @@ export const loginUser = async (req: Request, res: Response) => {
 
 export const googleLogin = async (req: Request, res: Response) => {
   try {
+    console.log("========== GOOGLE LOGIN ==========");
+    console.log("GOOGLE_CLIENT_ID =", process.env.GOOGLE_CLIENT_ID);
+
     const { token } = req.body;
 
     if (!token) {
@@ -115,6 +118,8 @@ export const googleLogin = async (req: Request, res: Response) => {
     });
 
     const payload = ticket.getPayload();
+
+    console.log("Google Payload =", payload);
 
     if (!payload || !payload.email) {
       return res.status(401).json({
@@ -180,12 +185,18 @@ export const googleLogin = async (req: Request, res: Response) => {
       token: jwtToken,
       user: userData,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("========== GOOGLE LOGIN ERROR ==========");
     console.error(error);
+
+    if (error.stack) {
+      console.error(error.stack);
+    }
 
     res.status(500).json({
       success: false,
       message: "Google authentication failed",
+      error: error.message,
     });
   }
 };
