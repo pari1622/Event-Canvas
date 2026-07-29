@@ -3,37 +3,59 @@ import dotenv from "dotenv";
 
 import Category from "../models/Category.js";
 import Product from "../models/Product.js";
+
 dotenv.config();
 
 await mongoose.connect(process.env.MONGODB_URI as string);
 
-await Category.deleteMany();
-await Product.deleteMany();
+console.log("🗑 Clearing existing data...");
+
+await Product.deleteMany({});
+await Category.deleteMany({});
+
+console.log("📂 Creating categories...");
 
 const printing = await Category.create({
   name: "Printing",
+  slug: "printing",
   description: "Premium Printing Services",
+  isFeatured: true,
+  displayOrder: 1,
 });
 
 const branding = await Category.create({
   name: "Branding",
+  slug: "branding",
   description: "Branding Solutions",
+  isFeatured: true,
+  displayOrder: 2,
 });
 
 const merchandise = await Category.create({
   name: "Merchandise",
+  slug: "merchandise",
   description: "Corporate Merchandise",
+  isFeatured: true,
+  displayOrder: 3,
 });
 
 const gifting = await Category.create({
   name: "Corporate Gifting",
+  slug: "corporate-gifting",
   description: "Luxury Gifting Solutions",
+  isFeatured: true,
+  displayOrder: 4,
 });
 
 const events = await Category.create({
   name: "Events",
+  slug: "events",
   description: "Event Management Services",
+  isFeatured: true,
+  displayOrder: 5,
 });
+
+console.log("📦 Creating products...");
 
 await Product.insertMany([
   // PRINTING
@@ -46,6 +68,7 @@ await Product.insertMany([
     minimumOrderQuantity: 100,
     customizationAvailable: true,
     isFeatured: true,
+    images: [],
   },
   {
     name: "Flyers",
@@ -55,6 +78,7 @@ await Product.insertMany([
     basePrice: 499,
     minimumOrderQuantity: 500,
     customizationAvailable: true,
+    images: [],
   },
   {
     name: "Brochures",
@@ -64,6 +88,7 @@ await Product.insertMany([
     basePrice: 999,
     minimumOrderQuantity: 100,
     customizationAvailable: true,
+    images: [],
   },
   {
     name: "Posters",
@@ -73,6 +98,7 @@ await Product.insertMany([
     basePrice: 199,
     minimumOrderQuantity: 10,
     customizationAvailable: true,
+    images: [],
   },
 
   // BRANDING
@@ -84,6 +110,7 @@ await Product.insertMany([
     basePrice: 5000,
     minimumOrderQuantity: 1,
     customizationAvailable: true,
+    images: [],
   },
   {
     name: "Acrylic Letters",
@@ -93,6 +120,7 @@ await Product.insertMany([
     basePrice: 3500,
     minimumOrderQuantity: 1,
     customizationAvailable: true,
+    images: [],
   },
 
   // MERCHANDISE
@@ -104,6 +132,7 @@ await Product.insertMany([
     basePrice: 199,
     minimumOrderQuantity: 20,
     customizationAvailable: true,
+    images: [],
   },
   {
     name: "Custom T-Shirt",
@@ -113,6 +142,7 @@ await Product.insertMany([
     basePrice: 499,
     minimumOrderQuantity: 20,
     customizationAvailable: true,
+    images: [],
   },
 
   // GIFTING
@@ -124,6 +154,7 @@ await Product.insertMany([
     basePrice: 1499,
     minimumOrderQuantity: 10,
     customizationAvailable: true,
+    images: [],
   },
 
   // EVENTS
@@ -135,9 +166,10 @@ await Product.insertMany([
     basePrice: 25000,
     minimumOrderQuantity: 1,
     customizationAvailable: true,
+    images: [],
   },
 ]);
 
-console.log("✅ Database Seeded");
+console.log("✅ Database Seeded Successfully!");
 
-process.exit();
+process.exit(0);

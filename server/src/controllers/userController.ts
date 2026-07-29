@@ -12,12 +12,21 @@ export const registerUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password, phone } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all required fields.",
+      });
+    }
+
+    const existingUser = await User.findOne({
+      email: email.toLowerCase(),
+    });
 
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User already exists",
+        message: "User already exists.",
       });
     }
 
@@ -25,28 +34,40 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const user = await User.create({
       name,
-      email,
-      phone,
+      email: email.toLowerCase(),
+      phone: phone || "",
       password: hashedPassword,
     });
 
-    await sendAdminNewUserEmail(user.name, user.email);
+    const token = jwt.sign(
+      {
+        id: user._id.toString(),
+        role: user.role,
+      },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: "7d",
+      },
+    );
 
-    res.status(201).json({
+    const { password: _, ...userData } = user.toObject();
+
+    return res.status(201).json({
       success: true,
       message: "Registration successful",
-      user,
+      token,
+      user: userData,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("REGISTER ERROR");
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message || "Server Error",
     });
   }
 };
-
 export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -147,7 +168,7 @@ export const googleLogin = async (req: Request, res: Response) => {
         profileImage: picture,
       });
 
-      await sendAdminNewUserEmail(user.name, user.email);
+      //await sendAdminNewUserEmail(user.name, user.email);
     } else {
       let updated = false;
 
