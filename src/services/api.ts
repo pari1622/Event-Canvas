@@ -1,5 +1,3 @@
-const API =
-  import.meta.env.VITE_API_URL ||
-  "https://event-canvas-production.up.railway.app/api";
+const API = "http://localhost:5000/api";
 
 export default API;

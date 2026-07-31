@@ -10,10 +10,15 @@ export const getQuoteBag = async (userId: string) => {
 export const addToQuoteBag = async (
   userId: string,
   productId: string,
-  quantity: number,
-  notes: string,
+  quantity: number = 1,
+  notes: string = "",
+  needDesign: boolean = false,
+  deliveryDate: Date | null = null,
+  referenceImage: string = "",
+  customization: Record<string, any> = {},
 ) => {
   const user = await User.findById(userId);
+  console.log("SERVICE productId:", productId);
   const product = await Product.findById(productId);
 
   if (!user || !product) {
@@ -25,6 +30,10 @@ export const addToQuoteBag = async (
     product: productId,
     quantity,
     notes,
+    needDesign,
+    deliveryDate,
+    referenceImage,
+    customization,
   });
 
   try {

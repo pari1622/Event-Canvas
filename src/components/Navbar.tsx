@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const { items } = useCart();
   const { isAuthenticated, logout } = useAuth();
 
   return (
@@ -48,6 +46,14 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
+          <Link
+            to="/quotebag"
+            className="px-5 py-2 rounded-lg font-medium text-white transition hover:scale-105"
+            style={{ backgroundColor: "#42362F" }}
+          >
+            Quote Bag
+          </Link>
+
           {!isAuthenticated ? (
             <Link
               to="/login"
@@ -68,32 +74,16 @@ export default function Navbar() {
 
               <button
                 onClick={logout}
-                className="px-5 py-2 rounded-lg font-medium text-white transition hover:scale-105"
-                style={{ backgroundColor: "#B89D82", color: "#110D0B" }}
-              >
-                Logout
-              </button>
-            </>
-          )}
-
-          <Link
-            to="/quotebag"
-            className="relative px-6 py-3 rounded-xl font-semibold text-white transition hover:scale-105"
-            style={{ backgroundColor: "#42362F" }}
-          >
-            QuoteBag
-            {items.length > 0 && (
-              <span
-                className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                className="px-5 py-2 rounded-lg font-medium transition hover:scale-105"
                 style={{
                   backgroundColor: "#B89D82",
                   color: "#110D0B",
                 }}
               >
-                {items.length}
-              </span>
-            )}
-          </Link>
+                Logout
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

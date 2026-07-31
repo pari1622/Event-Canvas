@@ -28,6 +28,68 @@ const quoteBagSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
+    needDesign: {
+      type: Boolean,
+      default: false,
+    },
+
+    deliveryDate: {
+      type: Date,
+      default: null,
+    },
+
+    customization: {
+      width: {
+        type: String,
+        default: "",
+      },
+
+      height: {
+        type: String,
+        default: "",
+      },
+
+      material: {
+        type: String,
+        default: "",
+      },
+
+      finish: {
+        type: String,
+        default: "",
+      },
+
+      color: {
+        type: String,
+        default: "",
+      },
+
+      gsm: {
+        type: String,
+        default: "",
+      },
+
+      printing: {
+        type: String,
+        default: "",
+      },
+
+      lamination: {
+        type: String,
+        default: "",
+      },
+
+      eyelets: {
+        type: String,
+        default: "",
+      },
+
+      remarks: {
+        type: String,
+        default: "",
+      },
+    },
   },
   {
     timestamps: true,

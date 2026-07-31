@@ -13,17 +13,44 @@ export const getQuoteBag = async () => {
   return data.bag;
 };
 
-export const addToQuoteBag = async (
-  productId: string,
+export type AddToQuoteBagPayload = {
+  productId: string;
+  quantity?: number;
+  notes?: string;
+  needDesign?: boolean;
+  deliveryDate?: string | null;
+  referenceImage?: string;
+  customization?: Record<string, any>;
+};
+
+export const addToQuoteBag = async ({
+  productId,
   quantity = 1,
   notes = "",
-) => {
+  needDesign = false,
+  deliveryDate = null,
+  referenceImage = "",
+  customization = {},
+}: AddToQuoteBagPayload) => {
+  console.log("NEW FRONTEND SERVICE", {
+    productId,
+    quantity,
+    notes,
+    needDesign,
+    deliveryDate,
+    referenceImage,
+    customization,
+  });
   const { data } = await axios.post(
     `${API}/quotebag`,
     {
       productId,
       quantity,
       notes,
+      needDesign,
+      deliveryDate,
+      referenceImage,
+      customization,
     },
     {
       headers: {

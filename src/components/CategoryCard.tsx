@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useCart } from "../context/CartContext";
-import CustomizeDrawer from "./CustomizeDrawer";
+import QuoteCustomizationModal from "./QuoteCustomizationModal";
 
 type CategoryCardProps = {
   title: string;
@@ -20,26 +19,14 @@ export default function CategoryCard({
   expanded,
   onToggle,
 }: CategoryCardProps) {
-  const { items } = useCart();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const [selectedService, setSelectedService] = useState("");
-
-  const [selectedItemId, setSelectedItemId] = useState<number>();
-
-  const handleAdd = async (product: any) => {
-    try {
-      const { addToQuoteBag } = await import("../services/quoteBagService");
-
-      await addToQuoteBag(product._id);
-
-      alert("Added to Quote Bag");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to add to Quote Bag");
-    }
+  const handleAdd = (product: any) => {
+    setSelectedProduct(product);
+    setModalOpen(true);
   };
+
   return (
     <>
       <div
@@ -57,8 +44,6 @@ export default function CategoryCard({
           border: "1px solid #42362F",
         }}
       >
-        {/* IMAGE */}
-
         <div className="overflow-hidden h-60">
           <img
             src={image || "https://placehold.co/600x400?text=EventCanvas"}
@@ -74,8 +59,6 @@ export default function CategoryCard({
           />
         </div>
 
-        {/* CONTENT */}
-
         <div className="p-6">
           <h2
             className="text-2xl font-bold"
@@ -87,8 +70,6 @@ export default function CategoryCard({
           </h2>
 
           <p className="mt-4 text-white/60 leading-relaxed">{description}</p>
-
-          {/* SERVICES BUTTON */}
 
           <button
             onClick={onToggle}
@@ -114,8 +95,6 @@ export default function CategoryCard({
             <span className="text-xl">{expanded ? "−" : "+"}</span>
           </button>
 
-          {/* SERVICES */}
-
           <div
             className={`
               overflow-hidden
@@ -125,105 +104,56 @@ export default function CategoryCard({
             `}
           >
             <div className="space-y-4">
-              {products.map((product) => {
-                const cartItem = items.find(
-                  (item) =>
-                    item.name === product.name && item.category === title,
-                );
+              {products.map((product) => (
+                <div
+                  key={product._id}
+                  className="
+                    rounded-xl
+                    bg-white/[0.03]
+                    p-4
+                    transition-all
+                    duration-300
+                    hover:bg-white/[0.07]
+                  "
+                  style={{
+                    border: "1px solid #42362F",
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium text-white">{product.name}</h4>
 
-                return (
-                  <div
-                    key={product._id}
-                    className="
-                      rounded-xl
-                      bg-white/[0.03]
-                      p-4
-                      transition-all
-                      duration-300
-                      hover:bg-white/[0.07]
-                    "
-                    style={{
-                      border: "1px solid #42362F",
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-white">{product.name}</h4>
-                      {!cartItem ? (
-                        <button
-                          onClick={() => handleAdd(product)}
-                          className="
-                            rounded-lg
-                            px-4
-                            py-2
-                            text-sm
-                            font-medium
-                            text-white
-                            transition
-                          "
-                          style={{
-                            backgroundColor: "#42362F",
-                          }}
-                        >
-                          Add To Bag
-                        </button>
-                      ) : (
-                        <span
-                          className="text-sm font-medium"
-                          style={{
-                            color: "#B89D82",
-                          }}
-                        >
-                          ✓ Added
-                        </span>
-                      )}
-                    </div>
-
-                    {/* CUSTOMIZE BUTTON */}
-
-                    {cartItem && (
-                      <button
-                        onClick={() => {
-                          setSelectedService(product.name);
-                          setDrawerOpen(true);
-                        }}
-                        className="
-                          mt-4
-                          w-full
-                          flex
-                          items-center
-                          justify-between
-                          rounded-xl
-                          px-4
-                          py-3
-                          transition-all
-                        "
-                        style={{
-                          backgroundColor: "#2D241F",
-                          border: "1px solid #42362F",
-                          color: "#B89D82",
-                        }}
-                      >
-                        <span className="font-medium">Customize</span>
-
-                        <span className="text-lg">→</span>
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleAdd(product)}
+                      className="
+                        rounded-lg
+                        px-4
+                        py-2
+                        text-sm
+                        font-medium
+                        text-white
+                        transition
+                      "
+                      style={{
+                        backgroundColor: "#42362F",
+                      }}
+                    >
+                      Add To Quote Bag
+                    </button>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      <CustomizeDrawer
-        open={drawerOpen}
+      <QuoteCustomizationModal
+        open={modalOpen}
         onClose={() => {
-          setDrawerOpen(false);
-          setSelectedItemId(undefined);
+          setModalOpen(false);
+          setSelectedProduct(null);
         }}
-        service={selectedService}
-        itemId={selectedItemId}
+        product={selectedProduct}
       />
     </>
   );

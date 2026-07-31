@@ -26,9 +26,28 @@ export const getBag = async (req: AuthRequest, res: Response) => {
 
 export const addItem = async (req: AuthRequest, res: Response) => {
   try {
-    const { productId, quantity = 1, notes = "" } = req.body;
+    const {
+      productId,
+      quantity = 1,
+      notes = "",
+      needDesign = false,
+      deliveryDate = null,
+      referenceImage = "",
+      customization = {},
+    } = req.body;
+    console.log("BODY:", req.body);
+    console.log("PRODUCT ID:", productId);
 
-    const item = await addToQuoteBag(req.user.id, productId, quantity, notes);
+    const item = await addToQuoteBag(
+      req.user.id,
+      productId,
+      quantity,
+      notes,
+      needDesign,
+      deliveryDate,
+      referenceImage,
+      customization,
+    );
 
     res.status(201).json({
       success: true,
@@ -40,7 +59,7 @@ export const addItem = async (req: AuthRequest, res: Response) => {
 
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error instanceof Error ? error.message : String(error),
     });
   }
 };
