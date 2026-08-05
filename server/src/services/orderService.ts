@@ -7,13 +7,19 @@ import {
 } from "./emailService.js";
 
 export const createOrder = async (userId: string) => {
+  console.log("1️⃣ Fetching Quote Bag...");
+
   const bag = await QuoteBag.find({
     user: userId,
   }).populate("product");
 
+  console.log("Quote Bag Items:", bag.length);
+
   if (!bag.length) {
     throw new Error("Quote Bag is empty");
   }
+
+  console.log("2️⃣ Fetching User...");
 
   const user = await User.findById(userId);
 
@@ -21,11 +27,13 @@ export const createOrder = async (userId: string) => {
     throw new Error("User not found");
   }
 
+  console.log("3️⃣ Creating Order...");
+
   const order = await Order.create({
     user: userId,
 
-    items: bag.map((item) => ({
-      product: item.product,
+    items: bag.map((item: any) => ({
+      product: item.product._id,
       quantity: item.quantity,
       notes: item.notes,
     })),
@@ -33,24 +41,43 @@ export const createOrder = async (userId: string) => {
     timeline: [
       {
         status: "Pending",
-        note: "Order Placed",
+        note: "Quote Request Submitted",
+        date: new Date(),
       },
     ],
   });
 
+  console.log("✅ Order Created");
+
   await order.populate("items.product");
 
-  await sendOrderPlacedEmail({
-    to: user.email,
-    customerName: user.name,
-    orderId: String(order._id),
-    items: order.items as any,
-  });
-  await sendAdminNewOrderEmail(user.name, user.email, String(order._id));
+  console.log("4️⃣ Clearing Quote Bag...");
 
   await QuoteBag.deleteMany({
     user: userId,
   });
+
+  console.log("✅ Quote Bag Cleared");
+
+  console.log("5️⃣ Sending Emails...");
+
+  try {
+    //await sendOrderPlacedEmail({
+    // to: user.email,
+    //customerName: user.name,
+    //orderId: String(order._id),
+    //items: order.items as any,
+    //});
+
+    //await sendAdminNewOrderEmail(user.name, user.email, String(order._id));
+
+    console.log("✅ Emails Sent");
+  } catch (error) {
+    console.error("EMAIL ERROR");
+    console.error(error);
+  }
+
+  console.log("6️⃣ Returning Order");
 
   return order;
 };
