@@ -28,7 +28,7 @@ import GenerateQuote from "./pages/admin/GenerateQuote";
 import ForgotPassword from "./pages/ForgotPassword";
 import VerifyOTP from "./pages/VerifyOTP";
 import ResetPassword from "./pages/ResetPassword";
-
+import AdminRoute from "./components/AdminRoute";
 function App() {
   return (
     <BrowserRouter>
@@ -77,19 +77,68 @@ function App() {
 
         {/* Admin */}
 
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
 
-        <Route path="/admin/products" element={<AdminProducts />} />
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <AdminProducts />
+            </AdminRoute>
+          }
+        />
 
-        <Route path="/admin/products/add" element={<AddProduct />} />
+        <Route
+          path="/admin/products/add"
+          element={
+            <AdminRoute>
+              <AddProduct />
+            </AdminRoute>
+          }
+        />
 
-        <Route path="/admin/products/edit/:id" element={<EditProduct />} />
+        <Route
+          path="/admin/products/edit/:id"
+          element={
+            <AdminRoute>
+              <EditProduct />
+            </AdminRoute>
+          }
+        />
 
-        <Route path="/admin/categories" element={<AdminCategories />} />
+        <Route
+          path="/admin/categories"
+          element={
+            <AdminRoute>
+              <AdminCategories />
+            </AdminRoute>
+          }
+        />
 
-        <Route path="/admin/categories/add" element={<AddCategory />} />
+        <Route
+          path="/admin/categories/add"
+          element={
+            <AdminRoute>
+              <AddCategory />
+            </AdminRoute>
+          }
+        />
 
-        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route
+          path="/admin/orders"
+          element={
+            <AdminRoute>
+              <AdminOrders />
+            </AdminRoute>
+          }
+        />
         <Route
           path="/quotes"
           element={
@@ -98,18 +147,34 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/admin/quotes" element={<AdminQuotes />} />
+        <Route
+          path="/admin/quotes"
+          element={
+            <AdminRoute>
+              <AdminQuotes />
+            </AdminRoute>
+          }
+        />
 
-        <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/admin/orders/:id/quote" element={<GenerateQuote />} />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute>
+              <AdminUsers />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/orders/:id/quote"
+          element={
+            <AdminRoute>
+              <GenerateQuote />
+            </AdminRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
 }
-/*
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-
-        <Route path="/reset-password" element={<ResetPassword />} /> 
-        */
 
 export default App;

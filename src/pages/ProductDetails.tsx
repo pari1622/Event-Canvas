@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
+import QuoteCustomizationModal from "../components/QuoteCustomizationModal";
+
 import { useAuth } from "../context/AuthContext";
 import { getProductById } from "../services/productService";
-import { addToQuoteBag } from "../services/quoteBagService";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -13,32 +14,21 @@ const ProductDetails = () => {
   const { isAuthenticated } = useAuth();
 
   const [product, setProduct] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  const handleAddToQuoteBag = async () => {
+  const handleCustomize = () => {
     if (!isAuthenticated) {
       navigate("/login", {
         state: {
           from: `/products/${id}`,
-          message: "Please login to add products to your Quote Bag.",
+          message: "Please login to continue.",
         },
       });
 
       return;
     }
 
-    try {
-      setLoading(true);
-
-      await addToQuoteBag(product._id);
-
-      alert("Product added to Quote Bag.");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to add product to Quote Bag.");
-    } finally {
-      setLoading(false);
-    }
+    setModalOpen(true);
   };
 
   useEffect(() => {
@@ -85,8 +75,6 @@ const ProductDetails = () => {
         }}
       >
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-start">
-          {/* Product Image */}
-
           <div>
             <img
               src={product.image}
@@ -94,8 +82,6 @@ const ProductDetails = () => {
               className="w-full rounded-2xl border border-[#42362F]"
             />
           </div>
-
-          {/* Product Details */}
 
           <div className="text-white">
             <p className="uppercase tracking-[4px] text-[#B89D82] mb-2">
@@ -127,19 +113,24 @@ const ProductDetails = () => {
             </div>
 
             <button
-              onClick={handleAddToQuoteBag}
-              disabled={loading}
-              className="w-full py-4 rounded-xl font-semibold transition hover:scale-[1.02] disabled:opacity-60"
+              onClick={handleCustomize}
+              className="w-full py-4 rounded-xl font-semibold transition hover:scale-[1.02]"
               style={{
                 backgroundColor: "#B89D82",
                 color: "#110D0B",
               }}
             >
-              {loading ? "Adding..." : "Add to Quote Bag"}
+              Customize & Add To Quote Bag
             </button>
           </div>
         </div>
       </div>
+
+      <QuoteCustomizationModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        product={product}
+      />
     </>
   );
 };

@@ -3,10 +3,8 @@ import { GoogleLogin } from "@react-oauth/google";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginUser, googleLogin } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
-
+console.log("CLIENT_ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
 const Login = () => {
-  console.log("CLIENT_ID =", import.meta.env.VITE_GOOGLE_CLIENT_ID);
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -18,6 +16,14 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const redirectUser = (user: any) => {
+    if (user.role === "admin") {
+      navigate("/admin", { replace: true });
+    } else {
+      navigate(redirectTo, { replace: true });
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,7 +38,7 @@ const Login = () => {
 
       login(res.token, res.user);
 
-      navigate(redirectTo, { replace: true });
+      redirectUser(res.user);
     } catch (err: any) {
       alert(err.response?.data?.message || "Login Failed");
     } finally {
@@ -48,7 +54,7 @@ const Login = () => {
 
       login(res.token, res.user);
 
-      navigate(redirectTo, { replace: true });
+      redirectUser(res.user);
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data?.message || "Google Login Failed");
@@ -134,8 +140,6 @@ const Login = () => {
               auto_select={false}
               ux_mode="popup"
               onSuccess={(credentialResponse) => {
-                console.log("Google Success", credentialResponse);
-
                 if (!credentialResponse.credential) {
                   alert("Google Login Failed");
                   return;
@@ -144,7 +148,6 @@ const Login = () => {
                 handleGoogleLogin(credentialResponse.credential);
               }}
               onError={() => {
-                console.error("Google Login Error");
                 alert("Google Login Failed");
               }}
             />

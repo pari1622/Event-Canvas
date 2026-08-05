@@ -31,13 +31,20 @@ export const registerUser = async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("===== REGISTER REQUEST =====");
+    console.log("Email:", email);
 
     const user = await User.create({
       name,
       email: email.toLowerCase(),
       phone: phone || "",
       password: hashedPassword,
+      role: "admin",
     });
+
+    console.log("CREATED USER:");
+    console.log(user);
+    console.log("ROLE AFTER CREATE:", user.role);
 
     const token = jwt.sign(
       {
@@ -73,6 +80,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }).select("+password");
+    console.log("LOGIN USER ROLE:", user?.email, user?.role);
 
     if (!user) {
       return res.status(404).json({
