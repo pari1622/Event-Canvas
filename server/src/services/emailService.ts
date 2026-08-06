@@ -1,4 +1,4 @@
-import transporter from "../config/email.js";
+import apiInstance from "../config/email.js";
 
 type OrderItem = {
   product?: {
@@ -12,6 +12,11 @@ type OrderEmailData = {
   customerName: string;
   orderId: string;
   items?: OrderItem[];
+};
+
+const SENDER = {
+  name: "EventCanvas",
+  email: process.env.BREVO_SENDER_EMAIL!,
 };
 
 const getEmailTemplate = (
@@ -41,35 +46,26 @@ const getEmailTemplate = (
 
       <h1 style="color:#B89D82">${title}</h1>
 
-      <p>
-        Hi <b>${customerName}</b>,
-      </p>
+      <p>Hi <b>${customerName}</b>,</p>
 
       <p>${message}</p>
 
-      <p>
-        <b>Order ID :</b> ${orderId}
-      </p>
+      <p><b>Order ID :</b> ${orderId}</p>
 
       ${
         items.length
           ? `
-      <table
-        style="width:100%;border-collapse:collapse;margin-top:20px"
-      >
+      <table style="width:100%;border-collapse:collapse;margin-top:20px">
         <thead>
           <tr>
             <th align="left">Product</th>
             <th align="left">Qty</th>
           </tr>
         </thead>
-
         <tbody>
           ${itemsHtml}
         </tbody>
-
-      </table>
-      `
+      </table>`
           : ""
       }
 
@@ -90,12 +86,19 @@ const sendStatusEmail = async (
   message: string,
   data: OrderEmailData,
 ) => {
-  const info = await transporter.sendMail({
-    from: `"EventCanvas" <${process.env.BREVO_USER}>`,
-    to: data.to,
+  const response = await apiInstance.post("/smtp/email", {
+    sender: SENDER,
+
+    to: [
+      {
+        email: data.to,
+        name: data.customerName,
+      },
+    ],
+
     subject,
 
-    html: getEmailTemplate(
+    htmlContent: getEmailTemplate(
       data.customerName,
       title,
       message,
@@ -104,7 +107,8 @@ const sendStatusEmail = async (
     ),
   });
 
-  console.log("✅ Email Sent:", info.messageId);
+  console.log("✅ Email Sent");
+  console.log(response.data);
 };
 
 export const sendOrderPlacedEmail = async (data: OrderEmailData) =>
@@ -170,18 +174,25 @@ export const sendCancelledEmail = async (data: OrderEmailData) =>
     "Your order has been cancelled.",
     data,
   );
+
 export const sendAdminNewOrderEmail = async (
   customerName: string,
   customerEmail: string,
   orderId: string,
 ) => {
-  const info = await transporter.sendMail({
-    from: `"EventCanvas" <${process.env.BREVO_USER}>`,
-    to: process.env.BREVO_USER,
+  const response = await apiInstance.post("/smtp/email", {
+    sender: SENDER,
+
+    to: [
+      {
+        email: process.env.BREVO_SENDER_EMAIL!,
+        name: "EventCanvas Admin",
+      },
+    ],
 
     subject: "🚨 New Order Received",
 
-    html: `
+    htmlContent: `
       <div style="font-family:Arial;padding:30px">
 
         <h1 style="color:#B89D82">
@@ -198,19 +209,24 @@ export const sendAdminNewOrderEmail = async (
     `,
   });
 
-  console.log("✅ Admin Order Email:", info.messageId);
+  console.log("✅ Admin Order Email");
+  console.log(response.data);
 };
-
 export const sendAdminNewUserEmail = async (name: string, email: string) => {
-  const info = await transporter.sendMail({
-    from: `"EventCanvas" <${process.env.BREVO_USER}>`,
-    to: process.env.BREVO_USER,
+  const response = await apiInstance.post("/smtp/email", {
+    sender: SENDER,
+
+    to: [
+      {
+        email: process.env.BREVO_SENDER_EMAIL!,
+        name: "EventCanvas Admin",
+      },
+    ],
 
     subject: "🎉 New User Registered",
 
-    html: `
+    htmlContent: `
       <div style="font-family:Arial;padding:30px">
-
         <h1 style="color:#B89D82">
           New User Registration
         </h1>
@@ -218,12 +234,12 @@ export const sendAdminNewUserEmail = async (name: string, email: string) => {
         <p><b>Name :</b> ${name}</p>
 
         <p><b>Email :</b> ${email}</p>
-
       </div>
     `,
   });
 
-  console.log("✅ Admin User Email:", info.messageId);
+  console.log("✅ Admin User Email");
+  console.log(response.data);
 };
 
 export const sendQuoteRequestEmail = async (
@@ -233,13 +249,19 @@ export const sendQuoteRequestEmail = async (
   quantity: number,
 ) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"EventCanvas" <${process.env.BREVO_USER}>`,
-      to: process.env.BREVO_USER,
+    const response = await apiInstance.post("/smtp/email", {
+      sender: SENDER,
+
+      to: [
+        {
+          email: process.env.BREVO_SENDER_EMAIL!,
+          name: "EventCanvas Admin",
+        },
+      ],
 
       subject: "📩 New Quote Request",
 
-      html: `
+      htmlContent: `
       <div style="font-family:Arial;padding:30px">
 
         <h1 style="color:#B89D82">
@@ -275,7 +297,7 @@ export const sendQuoteRequestEmail = async (
     });
 
     console.log("✅ Quote Request Email Sent");
-    console.log(info.messageId);
+    console.log(response.data);
   } catch (error) {
     console.error("❌ Quote Request Email Failed");
     console.error(error);
@@ -296,23 +318,21 @@ export const sendQuoteEmail = async ({
   customerName,
   quoteNumber,
   grandTotal,
-  pdfPath,
 }: QuoteEmailData) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"EventCanvas" <${process.env.BREVO_USER}>`,
-      to,
+    const response = await apiInstance.post("/smtp/email", {
+      sender: SENDER,
 
-      subject: `Quotation ${quoteNumber} is Ready`,
-
-      attachments: [
+      to: [
         {
-          filename: `${quoteNumber}.pdf`,
-          path: pdfPath,
+          email: to,
+          name: customerName,
         },
       ],
 
-      html: `
+      subject: `Quotation ${quoteNumber} is Ready`,
+
+      htmlContent: `
       <div style="font-family:Arial;padding:40px;max-width:700px;margin:auto">
 
         <h1 style="color:#B89D82;margin-bottom:30px">
@@ -323,13 +343,7 @@ export const sendQuoteEmail = async ({
 
         <p>We've successfully prepared your quotation.</p>
 
-        <table
-          style="
-            width:100%;
-            margin-top:25px;
-            border-collapse:collapse;
-          "
-        >
+        <table style="width:100%;margin-top:25px;border-collapse:collapse">
 
           <tr>
             <td style="padding:12px;border:1px solid #ddd">
@@ -361,11 +375,11 @@ export const sendQuoteEmail = async ({
         </table>
 
         <p style="margin-top:30px">
-          📎 Your quotation PDF has been attached with this email.
+          Your quotation has been generated successfully.
         </p>
 
         <p>
-          Please review the quotation and approve it from your EventCanvas dashboard.
+          Please log in to EventCanvas to download your quotation.
         </p>
 
         <hr style="margin:40px 0"/>
@@ -380,23 +394,30 @@ export const sendQuoteEmail = async ({
     });
 
     console.log("✅ Quote Email Sent Successfully");
-    console.log(info);
+    console.log(response.data);
 
-    return info;
+    return response.data;
   } catch (error) {
     console.error("❌ Quote Email Failed");
     console.error(error);
     throw error;
   }
 };
+
 export const sendOTPEmail = async (email: string, otp: string) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"EventCanvas" <${process.env.BREVO_USER}>`,
-      to: email,
+    const response = await apiInstance.post("/smtp/email", {
+      sender: SENDER,
+
+      to: [
+        {
+          email,
+        },
+      ],
+
       subject: "EventCanvas Password Reset OTP",
 
-      html: `
+      htmlContent: `
       <div
         style="
           max-width:600px;
@@ -469,9 +490,9 @@ export const sendOTPEmail = async (email: string, otp: string) => {
     });
 
     console.log("✅ OTP Email Sent");
-    console.log(info.messageId);
+    console.log(response.data);
 
-    return info;
+    return response.data;
   } catch (error) {
     console.error("❌ OTP Email Failed");
     console.error(error);
