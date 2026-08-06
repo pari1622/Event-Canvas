@@ -7,6 +7,7 @@ import {
 } from "./emailService.js";
 
 export const createOrder = async (userId: string) => {
+  console.log("🚀 NEW ORDER SERVICE BUILD");
   console.log("1️⃣ Fetching Quote Bag...");
 
   const bag = await QuoteBag.find({
