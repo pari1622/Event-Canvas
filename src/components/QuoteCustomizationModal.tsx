@@ -65,6 +65,15 @@ export default function QuoteCustomizationModal({
   const submit = async () => {
     try {
       setLoading(true);
+      console.log("MODAL PAYLOAD", {
+        productId: product._id,
+        quantity,
+        notes,
+        needDesign,
+        deliveryDate: deliveryDate || null,
+        referenceImage,
+        customization,
+      });
 
       await addToQuoteBag({
         productId: product._id,
