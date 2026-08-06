@@ -5,17 +5,27 @@ import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
+
   port: 587,
+
   secure: false,
 
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
+  requireTLS: true,
 
   auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_SMTP_KEY,
+    user: process.env.BREVO_USER!,
+    pass: process.env.BREVO_SMTP_KEY!,
   },
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ SMTP VERIFY FAILED");
+    console.error(error);
+  } else {
+    console.log("✅ SMTP CONNECTED");
+    console.log(success);
+  }
 });
 
 export default transporter;
