@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 import API from "../../services/api";
@@ -13,7 +13,7 @@ type QuoteItem = {
 
 const GenerateQuote = () => {
   const { id } = useParams();
-  console.log("Route ID:", id);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
@@ -36,7 +36,6 @@ const GenerateQuote = () => {
   useEffect(() => {
     const loadOrder = async () => {
       try {
-        console.log("Loading order:", id);
         const { data } = await axios.get(`${API}/admin/orders/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -100,6 +99,36 @@ const GenerateQuote = () => {
     setItems(items.filter((_, i) => i !== index));
   };
 
+  const handleGenerateQuote = async () => {
+    try {
+      await axios.post(
+        `${API}/quotes`,
+        {
+          orderId: order._id,
+          items,
+          discount,
+          gst,
+          advance,
+          validity,
+          terms,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      alert("Quote Generated Successfully & Email Sent");
+
+      navigate("/admin/quotes");
+    } catch (error: any) {
+      console.error(error);
+
+      alert(error.response?.data?.message || "Failed to Generate Quote");
+    }
+  };
+
   if (!order) {
     return (
       <AdminLayout>
@@ -122,13 +151,9 @@ const GenerateQuote = () => {
             <thead>
               <tr className="border-b border-[#42362F]">
                 <th className="text-left py-4">Description</th>
-
                 <th>Qty</th>
-
                 <th>Unit Price</th>
-
                 <th>Total</th>
-
                 <th></th>
               </tr>
             </thead>
@@ -254,19 +279,16 @@ const GenerateQuote = () => {
           <div className="rounded-2xl border border-[#42362F] bg-[#120F0D] p-8 space-y-5">
             <div className="flex justify-between">
               <span>Subtotal</span>
-
               <span>₹ {subtotal}</span>
             </div>
 
             <div className="flex justify-between">
               <span>Discount</span>
-
               <span>₹ {discount}</span>
             </div>
 
             <div className="flex justify-between">
               <span>GST</span>
-
               <span>₹ {gstAmount}</span>
             </div>
 
@@ -274,45 +296,12 @@ const GenerateQuote = () => {
 
             <div className="flex justify-between text-3xl font-bold text-[#B89D82]">
               <span>Grand Total</span>
-
               <span>₹ {grandTotal}</span>
             </div>
 
             <button
-              onClick={async () => {
-                try {
-                  const { data } = await axios.post(
-                    `${API}/quotes`,
-                    {
-                      orderId: order._id,
-                      items,
-                      discount,
-                      gst,
-                      advance,
-                      validity,
-                      terms,
-                    },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    },
-                  );
-
-                  window.open(`${API}/quotes/${data.quote._id}/pdf`, "_blank");
-
-                  alert("Quote Generated Successfully & Email Sent");
-                } catch (error: any) {
-                  console.error("FULL ERROR:", error);
-
-                  console.log("SERVER RESPONSE:", error.response?.data);
-
-                  alert(
-                    error.response?.data?.message || "Failed to Generate Quote",
-                  );
-                }
-              }}
-              className="mt-8 w-full rounded-xl bg-[#B89D82] py-4 text-xl font-bold text-black"
+              onClick={handleGenerateQuote}
+              className="mt-8 w-full rounded-xl bg-[#B89D82] py-4 text-xl font-bold text-black hover:bg-[#a88d73] transition"
             >
               Generate Quote
             </button>
