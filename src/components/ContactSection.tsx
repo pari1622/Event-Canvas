@@ -69,7 +69,7 @@ export default function ContactSection() {
               Email
             </h3>
 
-            <p className="text-white/60 mt-4">hello@eventcanvas.com</p>
+            <p className="text-white/60 mt-4">team@eventcanvas.co.in </p>
           </div>
 
           {/* Phone */}
@@ -97,7 +97,7 @@ export default function ContactSection() {
               Phone
             </h3>
 
-            <p className="text-white/60 mt-4">+91 98765 43210</p>
+            <p className="text-white/60 mt-4">+91 95996 03512</p>
           </div>
 
           {/* Address */}
